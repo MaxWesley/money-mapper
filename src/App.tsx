@@ -1,11 +1,13 @@
+import { ExtractInput } from "./components/ExtractInput";
+import { ExtractTable } from "./components/ExtractTable";
+import { Logo } from "./components/Logo";
+
 function App() {
   return (
     <div className="App">
-      <h2>Money Mapper</h2>
-      <label htmlFor="extract-input">
-        <p>Importe seus extratos aqui</p>
-        <input type="file" name="extract-input" id="extract-input" />
-      </label>
+      <Logo />
+      <ExtractInput />
+      <ExtractTable data={[]} />
     </div>
   );
 }
