@@ -4,16 +4,30 @@ interface ExtractTableProps {
   data?: any[];
 }
 
+import "./index.css";
+
 function ExtractTable({ data }: ExtractTableProps): JSX.Element {
-  const haveData = data?.length === 0;
-    
-  if (haveData) {
+  const isNotEmpty = data && data.length > 0;
+
+  if (!isNotEmpty) {
     return <h4>Nenhum extrato adicionado</h4>;
   }
 
   const extractData = useMemo(() => {
-    if (haveData) {
+    if (isNotEmpty) {
       return data;
+    }
+
+    return [];
+  }, []);
+
+  const extractFieds = useMemo(() => {
+    if (isNotEmpty) {
+      const fields = Object.keys(data[0]).filter(
+        (field) => field !== "Identificador"
+      );
+
+      return fields;
     }
 
     return [];
@@ -21,13 +35,20 @@ function ExtractTable({ data }: ExtractTableProps): JSX.Element {
 
   return (
     <>
-      {extractData.map((item) => (
-        <tr key={item.id}>
-          <td>{item.id}</td>
-          <td>{item.name}</td>
-          <td>{item.date}</td>
+      <table>
+        <tr>
+          {extractFieds.map((field) => (
+            <th key={field}>{field}</th>
+          ))}
         </tr>
-      ))}
+        {extractData.map((item, index) => (
+          <tr key={index}>
+            <td>{item.Data}</td>
+            <td>{item.Valor}</td>
+            <td>{item["Descrição"]}</td>
+          </tr>
+        ))}
+      </table>
     </>
   );
 }
