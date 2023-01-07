@@ -1,10 +1,9 @@
 import { useMemo } from "react";
+import { formatBRL } from "../../utils/formatBRL";
 
 interface ExtractTableProps {
   data?: any[];
 }
-
-import "./index.css";
 
 function ExtractTable({ data }: ExtractTableProps): JSX.Element {
   const isNotEmpty = data && data.length > 0;
@@ -35,20 +34,56 @@ function ExtractTable({ data }: ExtractTableProps): JSX.Element {
 
   return (
     <>
-      <table>
-        <tr>
-          {extractFieds.map((field) => (
-            <th key={field}>{field}</th>
-          ))}
-        </tr>
-        {extractData.map((item, index) => (
-          <tr key={index}>
-            <td>{item.Data}</td>
-            <td>{item.Valor}</td>
-            <td>{item["Descrição"]}</td>
-          </tr>
-        ))}
-      </table>
+      <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+        <table className="min-w-full divide-y divide-gray-300">
+          <thead className="bg-gray-50">
+            <tr>
+              {extractFieds.map((field) => (
+                <th
+                  scope="col"
+                  className="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                  key={field}>
+                  {field}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {extractData.map((item, index) => {
+              const description = ``.concat(item["Descrição"]).split("- ");
+
+              if (description[0] === "undefined") return;
+
+              return (
+                <tr key={index}>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900">
+                    {index + 1}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900">
+                    {item.Data}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900">
+                    {formatBRL(item.Valor)}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900">
+                    {description.map((item, index) => (
+                      <>
+                        {index === 0 ? (
+                          <p>
+                            <strong>{item}</strong>
+                          </p>
+                        ) : (
+                          <p>{item}</p>
+                        )}
+                      </>
+                    ))}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
