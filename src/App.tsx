@@ -39,9 +39,15 @@ function App() {
   };
 
   function sumField(arr: any[], field: string) {
+    if(arr.length === 0) return 0;
     const transactions = arr.slice(0, arr.length - 1);
+    
     return transactions.reduce(
-      (total, currentValue) => total + Number(currentValue[field]),
+      (total: number, currentValue) => {
+        if(!currentValue['Valor']) return total;
+
+        return total + parseFloat(currentValue[field]);
+      },
       0
     );
   }
@@ -65,8 +71,8 @@ function App() {
                     totalInExtract < 0 ? "text-rose-500" : "text-green-500"
                   }>
                   {totalInExtract < 0
-                    ? "Que chato... Seu saldo está negativo 😕"
-                    : "Parabéns! Seu saldo está positivo. 🎉"}
+                    ? "Que chato... Você gastou mais dinheiro do que recebeu 😕"
+                    : "Parabéns! Seu saldo final foi positivo! 🎉"}
                 </span>
               </p>
               <ExtractTable data={data} />
