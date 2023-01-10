@@ -5,7 +5,7 @@ import { Logo } from "./components/Logo";
 
 import { parse } from "papaparse";
 import { FilterBar } from "./components/FilterBar";
-import { formatBRL } from "./utils/formatBRL";
+import { StatusTransactions } from "./components/StatusTransactions";
 
 function App() {
   const [data, setData] = useState<any[]>([]);
@@ -38,43 +38,83 @@ function App() {
     readAndMergeCSV(data, files);
   };
 
-  const sumField = (arr: any[], field: string) => {
-    if(arr.length === 0) return 0;
+  const balance = (arr: any[], field: string) => {
+    if (arr.length === 0) return 0;
     const transactions = arr.slice(0, arr.length - 1);
 
-    return transactions.reduce(
-      (total: number, currentValue) => {
-        if(!currentValue['Valor']) return total;
+    return transactions.reduce((total: number, currentValue) => {
+      if (!currentValue["Valor"]) return total;
 
+      return total + parseFloat(currentValue[field]);
+    }, 0);
+  };
+ 
+  const received = (arr: any[], field: string) => {
+    if (arr.length === 0) return 0;
+    const transactions = arr.slice(0, arr.length - 1);
+
+    return transactions.reduce((total: number, currentValue) => {
+      if (!currentValue["Valor"]) return total;
+
+      if (
+        ``.concat(currentValue["Descrição"]).match("Transferência Recebida")
+      ) {
         return total + parseFloat(currentValue[field]);
-      },
-      0
-    );
-  }
+      }
 
-  const totalInExtract = sumField(data, "Valor");
+      return total;
+    }, 0);
+  };
+
+  const sent = (arr: any[], field: string) => {
+    if (arr.length === 0) return 0;
+    const transactions = arr.slice(0, arr.length - 1);
+
+    return transactions.reduce((total: number, currentValue) => {
+      if (!currentValue["Valor"]) return total;
+
+      if (
+        ``.concat(currentValue["Descrição"]).match("Transferência enviada")
+      ) {
+        return total + parseFloat(currentValue[field]);
+      }
+
+      return total;
+    }, 0);
+  };
+
+  const finalBalance = balance(data, "Valor");
+  const totalReceived = received(data, "Valor");
+  const totalSent = sent(data, "Valor");
 
   return (
     <div className="relative bg-white">
       <div className="mx-auto max-w-7xl">
-        <div className="relative z-10 bg-white pb-8 sm:pb-16 md:pb-20 lg:w-full lg:max-w-2xl lg:pb-28 xl:pb-32">
+        <div className="relative z-10 bg-white pb-8 sm:pb-16 md:pb-20 lg:w-full lg:w-full lg:pb-28 xl:pb-32">
           <Logo />
-
-          {data.length === 0 && <ExtractInput onChange={handleSelectExtract} />}
           {data.length > 0 && (
             <>
-              <FilterBar />
-              <p className="mb-4">
-                <strong>Total:</strong> {formatBRL(totalInExtract)} <br />
+              <StatusTransactions
+                finalBalance={finalBalance}
+                totalReceived={totalReceived}
+                totalSent={totalSent}
+              />
+              <p className="mt-8 mb-4 text-center">
                 <span
                   className={
-                    totalInExtract < 0 ? "text-rose-500" : "text-green-500"
+                    finalBalance < 0 ? "text-rose-500" : "text-green-500"
                   }>
-                  {totalInExtract < 0
+                  {finalBalance < 0
                     ? "Que chato... Você gastou mais dinheiro do que recebeu 😕"
                     : "Parabéns! Seu saldo final foi positivo! 🎉"}
                 </span>
               </p>
+            </>
+          )}
+          {data.length === 0 && <ExtractInput onChange={handleSelectExtract} />}
+          {data.length > 0 && (
+            <>
+              <FilterBar />
               <ExtractTable data={data} />
             </>
           )}
