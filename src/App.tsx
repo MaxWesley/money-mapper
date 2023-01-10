@@ -38,10 +38,10 @@ function App() {
     readAndMergeCSV(data, files);
   };
 
-  function sumField(arr: any[], field: string) {
+  const sumField = (arr: any[], field: string) => {
     if(arr.length === 0) return 0;
     const transactions = arr.slice(0, arr.length - 1);
-    
+
     return transactions.reduce(
       (total: number, currentValue) => {
         if(!currentValue['Valor']) return total;
